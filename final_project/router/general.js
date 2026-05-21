@@ -5,6 +5,9 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
+// Helper base URL pointing to the local running instance of the server
+const BASE_URL = "http://localhost:5000";
+
 
 public_users.post("/register", (req, res) => {
   const username = req.body.username;

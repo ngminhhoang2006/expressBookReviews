@@ -11,9 +11,14 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+public_users.get('/', function (req, res) {
+  // Check if books data exists
+  if (books) {
+    // Using JSON.stringify(object, replacer, space) to format the output neatly
+    return res.status(200).send(JSON.stringify(books, null, 4));
+  } else {
+    return res.status(404).json({ message: "No books found" });
+  }
 });
 
 // Get book details based on ISBN

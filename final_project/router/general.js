@@ -140,4 +140,143 @@ public_users.get('/review/:isbn', function (req, res) {
   }
 });
 
+// Get the book list available in the shop using Async/Await
+public_users.get('/', async function (req, res) {
+  try {
+    // Creating a mock asynchronous operation to retrieve books
+    const fetchBooksAsync = () => {
+      return new Promise((resolve, reject) => {
+        if (books) {
+          resolve(books);
+        } else {
+          reject(new Error("No books found"));
+        }
+      });
+    };
+
+    // Await the resolution of the books data
+    const booksList = await fetchBooksAsync();
+    
+    // Send the neatly formatted JSON back to the client
+    return res.status(200).send(JSON.stringify(booksList, null, 4));
+    
+  } catch (error) {
+    return res.status(404).json({ message: error.message });
+  }
+});
+
+// Get book details based on ISBN using Async/Await
+public_users.get('/isbn/:isbn', async function (req, res) {
+  const isbn = req.params.isbn;
+
+  try {
+    // Define an internal function that returns a promise looking up the book
+    const fetchBookByIsbnAsync = (bookIsbn) => {
+      return new Promise((resolve, reject) => {
+        const book = books[bookIsbn];
+        if (book) {
+          resolve(book);
+        } else {
+          reject(new Error(`Book with ISBN ${bookIsbn} not found`));
+        }
+      });
+    };
+
+    // Await the asynchronous resolution of the book lookup
+    const bookDetails = await fetchBookByIsbnAsync(isbn);
+    
+    // Return the book details neatly formatted
+    return res.status(200).send(JSON.stringify(bookDetails, null, 4));
+
+  } catch (error) {
+    // Catch the rejection and return a 404 error
+    return res.status(404).json({ message: error.message });
+  }
+});
+
+
+// Get book details based on author using Async/Await
+public_users.get('/author/:author', async function (req, res) {
+  const requestedAuthor = req.params.author.toLowerCase();
+
+  try {
+    // Define an internal function that asynchronously searches for books by author
+    const fetchBooksByAuthorAsync = (authorName) => {
+      return new Promise((resolve, reject) => {
+        const keys = Object.keys(books);
+        let matchingBooks = [];
+
+        keys.forEach(key => {
+          if (books[key].author.toLowerCase() === authorName) {
+            matchingBooks.push({
+              isbn: key,
+              author: books[key].author,
+              title: books[key].title,
+              reviews: books[key].reviews
+            });
+          }
+        });
+
+        if (matchingBooks.length > 0) {
+          resolve(matchingBooks);
+        } else {
+          reject(new Error(`No books found by author "${req.params.author}"`));
+        }
+      });
+    };
+
+    // Await the asynchronous resolution of the array
+    const authorBooks = await fetchBooksByAuthorAsync(requestedAuthor);
+    
+    // Return the array of matching books neatly formatted
+    return res.status(200).send(JSON.stringify(authorBooks, null, 4));
+
+  } catch (error) {
+    // Catch the rejection and return a 404 error
+    return res.status(404).json({ message: error.message });
+  }
+});
+
+// Get all books based on title using Async/Await
+public_users.get('/title/:title', async function (req, res) {
+  const requestedTitle = req.params.title.toLowerCase();
+
+  try {
+    // Define an internal function that asynchronously searches for books by title
+    const fetchBooksByTitleAsync = (titleName) => {
+      return new Promise((resolve, reject) => {
+        const keys = Object.keys(books);
+        let matchingBooks = [];
+
+        keys.forEach(key => {
+          if (books[key].title.toLowerCase() === titleName) {
+            matchingBooks.push({
+              isbn: key,
+              author: books[key].author,
+              title: books[key].title,
+              reviews: books[key].reviews
+            });
+          }
+        });
+
+        if (matchingBooks.length > 0) {
+          resolve(matchingBooks);
+        } else {
+          reject(new Error(`No books found with the title "${req.params.title}"`));
+        }
+      });
+    };
+
+    // Await the asynchronous resolution of the array lookup
+    const titleBooks = await fetchBooksByTitleAsync(requestedTitle);
+    
+    // Return the array of matching books neatly formatted
+    return res.status(200).send(JSON.stringify(titleBooks, null, 4));
+
+  } catch (error) {
+    // Catch the rejection error and return a 404 status
+    return res.status(404).json({ message: error.message });
+  }
+});
+
 module.exports.general = public_users;
